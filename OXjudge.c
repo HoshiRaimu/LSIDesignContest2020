@@ -14,7 +14,7 @@ int main() {
     double bias_c[2][1][1] = {{{1}}, {{1}}};       
     int padding = 0;
     int stride_p = 2;
-    double w_o[2][2] = {{1.5, -2.6}, {-4.2, -3.5}};
+    double w_o[2][2] = {{1.5, -2.6}, {-4.2, 3.5}};
     double bias_o[2][1] = {{1}, {1}};
     double eta = 0.1;
 
@@ -35,8 +35,17 @@ int main() {
 
     //Output_layerに関する関数
     int line_OL, low_OL, channel_OL, k_OL;
-    double ****z_o;
-    double ****a_o;
+    double ***z_o;
+    double ***a_o;
+    //--------------------------------
+
+    //Output_Backpropに関する変数
+    int k_OB, channel_OB, low_OB, line_OB;
+    double dz_o[6][2][1];
+    double dw_o[6][2][2];
+    double db_o[6][2][1];
+    double Ct;
+    //--------------------------------
 
     int i, j, k, l;
     int size1, size2, size3;
@@ -102,32 +111,41 @@ int main() {
 
 
     //Output_Layer
-    /*k_OL = K;
+    k_OL = K;
     channel_OL = Out_Channel_PL;
     low_OL = Out_Low_PL;
     line_OL = Out_Line_PL;
 
-    z_o = (double****)malloc(sizeof(double***) * k_OL);       //z_o,a_oの動的確保
-    a_o = (double****)malloc(sizeof(double***) * k_OL);           
+    z_o = (double***)malloc(sizeof(double**) * k_OL);       //z_o,a_oの動的確保
+    a_o = (double***)malloc(sizeof(double**) * k_OL);           
     for(i = 0; i < k_OL; i++) {
-        z_o[i] = (double***)malloc(sizeof(double**) * channel_OL);
-        a_o[i] = (double***)malloc(sizeof(double**) * channel_OL);
+        z_o[i] = (double**)malloc(sizeof(double*) * channel_OL);
+        a_o[i] = (double**)malloc(sizeof(double*) * channel_OL);
         for(j = 0; j < channel_OL; j++) {
-            z_o[i][j] = (double**)malloc(sizeof(double*) * 1);
-            a_o[i][j] = (double**)malloc(sizeof(double*) * 1);
+            z_o[i][j] = (double*)malloc(sizeof(double) * 1);
+            a_o[i][j] = (double*)malloc(sizeof(double) * 1);
         }
     }
 
-    Output_layer(a_p, w_o, bias_o, k_OL, channel_OL,low_OL, line_OL, z_o, a_o);*/
-    //printf("%d %d %d %d \n", Out_Line_PL, Out_Low_PL, Out_Channel_PL, 5);
+    Output_layer(a_p, w_o, bias_o, k_OL, channel_OL, z_o, a_o);
 
-    for(i = 0; i < K; i++) {
-        for(j = 0; j < Out_Channel_PL; j++) {
-            for(k = 0; k < Out_Low_PL; k++) {
-                for(l = 0; l < Out_Line_PL; l++) {
-                    printf("%f   ", a_p[i][j][k][l]);
-                }
-                printf("\n");
+
+
+
+    //Output_Backprop
+    k_OB = k_OL;
+    channel_OB = channel_OL;
+    //low_OB = low_OL;
+    //line_OB = low_OL;
+
+    Output_Backprop(a_o, t, a_p, w_o, k_OB, channel_OB, dz_o, dw_o, db_o, &Ct);
+
+    printf("%f\n", Ct);
+
+    for(i = 0; i < 6; i++) {
+        for(j = 0; j < 2; j++) {
+            for(k = 0; k < 1; k++) {
+                printf("%f ", dz_o[i][j][k]);
             }
             printf("\n");
         }
