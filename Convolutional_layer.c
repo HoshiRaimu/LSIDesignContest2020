@@ -3,7 +3,7 @@
 #include <math.h>
 #include "OXjudge.h"
 
-void Convolutional_layer(int In[][1][3][3], int filter[][2][2], int stride, double bias[][1][1], int padding, int filter_Line, int filter_Low, int Out_Line, int Out_Low, int Out_Channel, int size4, double ****a, double ****z) {
+void Convolutional_layer(int In[][1][3][3], int filter[][2][2], int stride, double bias[][1][1], int padding, int filter_Line, int filter_Low, int Out_Line, int Out_Low, int Out_Channel, int size4, double a[][2][2][2], double z[][2][2][2]) {
 
     //int bias[2][3][3] = {{{1, 1, 1}}, {{1, 1, 1}}};      //配列の大きさはまだ決定ではない
     int LINE, LOW, OUT;

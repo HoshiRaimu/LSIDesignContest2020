@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-void Output_Backprop(double ***a_o, int t[][6], double ****a_p, double w_o[][2], int K, int channel, double dCda[][2][1], double dCdw[][2][2], double dCdb[][2][1], double *Ct) {
+void Output_Backprop(double a_o[][2][1], int t[][6], double a_p[][2][1][1], double w_o[][2], int K, int channel, double dCda[][2][1], double dCdw[][2][2], double dCdb[][2][1], double *Ct) {
     double C[6][1];
     double tmp[2];
     double sum = 0;

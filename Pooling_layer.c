@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "OXjudge.h"
 
-void Pooling_layer(double ****In, int stride, int Out_Line, int Out_Low, int Out_Channel, int K, double ****a){
+void Pooling_layer(double In[][2][2][2], int stride, int Out_Line, int Out_Low, int Out_Channel, int K, double a[][2][1][1]){
     int line, low, channel, LINE, LOW;
     double max = 0;
 

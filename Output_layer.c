@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-void Output_layer(double ****a_p, double w_o[2][2], double bias_o[2][1], int K, int channel, double ***z_o, double ***a_o) {
+void Output_layer(double a_p[][2][1][1], double w_o[2][2], double bias_o[2][1], int K, int channel, double z_o[][2][1], double a_o[][2][1]) {
     int i, j, k, s;
     double tmp1, tmp2;
 

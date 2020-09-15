@@ -23,20 +23,20 @@ int main() {
     int filter_Line, filter_Low;
     int Out_Line_CL, Out_Low_CL, Out_Channel_CL;
     int size4;
-    double ****z_c;
-    double ****a_c;
+    double z_c[6][2][2][2];
+    double a_c[6][2][2][2];
     //--------------------------------
 
     //Pooling_layerに関する変数
     int In_Line_PL, In_Low_PL, In_Channel_PL, K;
     int Out_Line_PL, Out_Low_PL, Out_Channel_PL;
-    double ****a_p;
+    double a_p[6][2][1][1];
     //--------------------------------
 
     //Output_layerに関する関数
     int line_OL, low_OL, channel_OL, k_OL;
-    double ***z_o;
-    double ***a_o;
+    double z_o[6][2][1];
+    double a_o[6][2][1];
     //--------------------------------
 
     //Output_Backpropに関する変数
@@ -45,6 +45,13 @@ int main() {
     double dw_o[6][2][2];
     double db_o[6][2][1];
     double Ct;
+
+    double CT;  //matlabでは配列になっているがとりあえず変数で対応
+    //--------------------------------
+
+    //Pooling_Backpropにかんする変数
+    int k_PB, channel_PB;
+    double dz_p[6][2][2][2];
     //--------------------------------
 
     int i, j, k, l;
@@ -64,25 +71,7 @@ int main() {
 
     size4 = sizeof(In) / sizeof(In[0]);
 
-    z_c = (double****)malloc(sizeof(double***) * size4);       //z_c,a_cの動的確保
-    a_c = (double****)malloc(sizeof(double***) * size4);           
-    for(i = 0; i < size4; i++) {
-        z_c[i] = (double***)malloc(sizeof(double**) * Out_Channel_CL);
-        a_c[i] = (double***)malloc(sizeof(double**) * Out_Channel_CL);
-        for(j = 0; j < Out_Channel_CL; j++) {
-            z_c[i][j] = (double**)malloc(sizeof(double*) * Out_Low_CL);
-            a_c[i][j] = (double**)malloc(sizeof(double*) * Out_Low_CL);
-            for(k = 0; k < Out_Low_CL; k++) {
-                z_c[i][j][k] = (double*)malloc(sizeof(double) * Out_Line_CL);
-                a_c[i][j][k] = (double*)malloc(sizeof(double) * Out_Line_CL);
-            }
-        }
-    }
-
     Convolutional_layer(In, filter_c, stride_c, bias_c, padding, filter_Line, filter_Low, Out_Line_CL, Out_Low_CL, Out_Channel_CL, size4, a_c, z_c);
-
-
-
 
     //Pooling_layer
     K = size4;                   //K = sizeof(a_c) / sizeof(a_c[0]);
@@ -94,21 +83,7 @@ int main() {
     Out_Low_PL = (In_Low_PL -stride_p) / stride_p + 1;
     Out_Channel_PL = In_Channel_PL;
 
-    a_p = (double****)malloc(sizeof(double***) * K);       //a_pの動的確保          
-    for(i = 0; i < K; i++) {
-        a_p[i] = (double***)malloc(sizeof(double**) * Out_Channel_PL);
-        for(j = 0; j < Out_Channel_PL; j++) {
-            a_p[i][j] = (double**)malloc(sizeof(double*) * Out_Low_PL);
-            for(k = 0; k < Out_Low_PL; k++) {
-                a_p[i][j][k] = (double*)malloc(sizeof(double) * Out_Line_PL);
-            }
-        }
-    }
-
     Pooling_layer(a_c, stride_p, Out_Line_PL, Out_Low_PL, Out_Channel_PL, K, a_p);
-
-
-
 
     //Output_Layer
     k_OL = K;
@@ -116,21 +91,7 @@ int main() {
     low_OL = Out_Low_PL;
     line_OL = Out_Line_PL;
 
-    z_o = (double***)malloc(sizeof(double**) * k_OL);       //z_o,a_oの動的確保
-    a_o = (double***)malloc(sizeof(double**) * k_OL);           
-    for(i = 0; i < k_OL; i++) {
-        z_o[i] = (double**)malloc(sizeof(double*) * channel_OL);
-        a_o[i] = (double**)malloc(sizeof(double*) * channel_OL);
-        for(j = 0; j < channel_OL; j++) {
-            z_o[i][j] = (double*)malloc(sizeof(double) * 1);
-            a_o[i][j] = (double*)malloc(sizeof(double) * 1);
-        }
-    }
-
     Output_layer(a_p, w_o, bias_o, k_OL, channel_OL, z_o, a_o);
-
-
-
 
     //Output_Backprop
     k_OB = k_OL;
@@ -140,55 +101,28 @@ int main() {
 
     Output_Backprop(a_o, t, a_p, w_o, k_OB, channel_OB, dz_o, dw_o, db_o, &Ct);
 
-    printf("%f\n", Ct);
+    CT = Ct;
+
+    //Pooling_Backprop
+    k_PB = K;
+    channel_PB = Out_Channel_PL;
+
+    Pooling_Backprop(a_c, stride_p, a_p, dz_o, k_PB, channel_PB, dz_p);
+
 
     for(i = 0; i < 6; i++) {
         for(j = 0; j < 2; j++) {
-            for(k = 0; k < 1; k++) {
-                printf("%f ", dz_o[i][j][k]);
+            for(k = 0; k < 2; k++) {
+                for(l = 0; l < 2; l++) {
+                    printf("%f ", dz_p[i][j][k][l]);
+                }
+                printf("\n");
             }
             printf("\n");
         }
         printf("\n");
     }
     printf("\n");
-
-    for(i = 0; i < size4; i++) {               //z_c,a_cの解放
-        for(j = 0; j < Out_Channel_CL; j++) {
-            for(k = 0; k < Out_Low_CL; k++) {
-                free(z_c[i][j][k]);
-                free(a_c[i][j][k]);
-            }
-            free(z_c[i][j]);
-            free(a_c[i][j]);
-        }
-        free(z_c[i]);
-        free(a_c[i]);
-    }
-    free(z_c);
-    free(a_c);
-
-    for(i = 0; i < K; i++) {                   //a_pの解放
-        for(j = 0; j < Out_Channel_PL; j++) {
-            for(k = 0; k < Out_Low_PL; k++) {
-                free(a_p[i][j][k]);
-            }
-            free(a_p[i][j]);
-        }
-        free(a_p[i]);
-    }
-    free(a_p);
-
-    for(i = 0; i < k_OL; i++) {               //z_o,a_oの解放
-        for(j = 0; j < channel_OL; j++) {
-            free(z_o[i][j]);
-            free(a_o[i][j]);
-        }
-        free(z_o[i]);
-        free(a_o[i]);
-    }
-    free(z_o);
-    free(a_o);
 
 
     return 0;
