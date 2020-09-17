@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "OXjudge.h"
 
 void Output_Backprop(double a_o[][2][1], int t[][6], double a_p[][2][1][1], double w_o[][2], int K, int channel, double dCda[][2][1], double dCdw[][2][2], double dCdb[][2][1], double *Ct) {
     double C[6][1];
@@ -47,21 +48,3 @@ void Output_Backprop(double a_o[][2][1], int t[][6], double a_p[][2][1][1], doub
         }
     }
 }
-
-/*int main() {
-    int k_OB, channel_OB, low_OB, line_OB;
-    double a_o[6][2][1] = {0.226825, 0.821941, 0.226825, 0.821941, 0.226825, 0.821941, 0.171939, 0.864984, 0.171939, 0.864984, 0.171939, 0.864984};
-    double a_p[6][2][1][1] ={0.9820, 0.8808, 0.9820, 0.8808, 0.9820, 0.8808, 0.9526, 0.9526, 0.9526, 0.9526, 0.9526, 0.9526};
-    int t[2][6] = {{1, 1, 1, 0, 0, 0}, {0, 0, 0, 1, 1, 1}};
-    double w_o[2][2] = {{1.5, -2.6}, {-4.2, 3.5}};
-
-
-    k_OB = 6;
-    channel_OB = 2;
-    low_OB = 1;
-    line_OB = 1;
-
-    Output_Backprop(a_o, t, a_p, w_o, k_OB, channel_OB, low_OB, line_OB);
-    return 0;
-}*/
-
